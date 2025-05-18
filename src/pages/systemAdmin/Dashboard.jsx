@@ -41,7 +41,7 @@ const SystemAdminDashboard = () => {
         </div>
 
         <div className="bg-gray-200 p-6 rounded-lg text-center shadow">
-          <p className="text-lg font-medium mb-2">Тайлан, график</p>
+          <p className="text-lg font-medium mb-2">Асуудал</p>
           <p className="text-3xl font-bold">{stats.reports}</p>
         </div>
       </div>

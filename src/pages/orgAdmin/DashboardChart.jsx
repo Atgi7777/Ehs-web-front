@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
+import axios from 'axios';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +12,6 @@ import {
   Legend,
 } from 'chart.js';
 
-// Chart бүртгэл
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,20 +23,54 @@ ChartJS.register(
 );
 
 const DashboardChart = () => {
-  // Хатуу өгөгдөл
-  const data = {
-    labels: ['1', '2', '3', '4', '5'],
+  const [chartData, setChartData] = useState({
+    labels: [],
     datasets: [
       {
         label: 'Илгээсэн тайлан',
-        data: [2, 7, 15, 10, 14],
+        data: [],
         borderColor: '#2563eb',
         backgroundColor: 'rgba(37, 99, 235, 0.2)',
         tension: 0.4,
         fill: true,
       },
     ],
-  };
+  });
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5050/api/reports-chart', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('orgAdminToken')}`,
+          }
+        });
+
+        const reports = response.data;
+
+        const labels = reports.map(item => item.date);
+        const data = reports.map(item => item.count);
+
+        setChartData({
+          labels,
+          datasets: [
+            {
+              label: 'Илгээсэн тайлан',
+              data,
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.2)',
+              tension: 0.4,
+              fill: true,
+            },
+          ],
+        });
+      } catch (error) {
+        console.error('📊 Тайлангийн график дата авахад алдаа:', error);
+      }
+    };
+
+    fetchChartData();
+  }, []);
 
   const options = {
     responsive: true,
@@ -51,7 +85,7 @@ const DashboardChart = () => {
   return (
     <div className="bg-white rounded-lg p-4 shadow">
       <p className="text-lg font-semibold mb-4">Тайлан илгээсэн</p>
-      <Line data={data} options={options} height={200} />
+      <Line data={chartData} options={options} height={200} />
     </div>
   );
 };
